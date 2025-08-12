@@ -6,6 +6,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import f1_score
+from sklearn.model_selection import KFold , cross_val_score
+import numpy as np
 
 # Step 1: Load dataset
 data = pd.read_csv('heart.csv') 
@@ -93,3 +95,38 @@ plot_tree(dt,
 plt.title("Decision Tree for Heart Disease Prediction")
 plt.show()
 dt = DecisionTreeClassifier(max_depth=3)
+
+
+
+# Create K-Fold object (e.g., 5 folds)
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
+# Define your model
+model = SVC(kernel='linear')
+
+# Run cross-validation
+scores = cross_val_score(model, X, y, cv=kf, scoring='accuracy')
+
+# Print results
+print("Fold Accuracies:", scores)
+print("Mean Accuracy:", np.mean(scores))
+print("Std Deviation:", np.std(scores))
+
+
+
+# Define models to compare
+models = {
+    "Logistic Regression": LogisticRegression(max_iter=1000),
+    "SVC": SVC(kernel='linear'),
+    "Random Forest": RandomForestClassifier(),
+    "Decision Tree": DecisionTreeClassifier()
+}
+
+# Setup K-Fold CV
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
+
+print("Model Performance with 5-Fold Cross-Validation:\n")
+for name, model in models.items():
+    scores = cross_val_score(model, X, y, cv=kf, scoring='accuracy')
+    print(f"{name}:")
+    print(f"  Mean Accuracy: {scores.mean():.4f}")
+    print(f"  Std Deviation: {scores.std():.4f}\n")
